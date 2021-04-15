@@ -82,6 +82,7 @@ on_client_disconnected(_ClientInfo = #{clientid := ClientId, username := Usernam
 %%--------------------------------------------------------------------
 
 connected_presence(#{peerhost := PeerHost,
+                     peerport := PeerPort,
                      sockport := SockPort,
                      clientid := ClientId,
                      username := Username
@@ -96,6 +97,7 @@ connected_presence(#{peerhost := PeerHost,
     #{clientid => ClientId,
       username => Username,
       ipaddress => ntoa(PeerHost),
+      srcport => PeerPort,
       sockport => SockPort,
       proto_name => ProtoName,
       proto_ver => ProtoVer,
