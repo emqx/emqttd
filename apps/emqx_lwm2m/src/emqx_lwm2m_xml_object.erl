@@ -17,7 +17,10 @@
 -module(emqx_lwm2m_xml_object).
 
 -include("emqx_lwm2m.hrl").
+-include_lib("emqx/include/logger.hrl").
 -include_lib("xmerl/include/xmerl.hrl").
+
+-logger_header("[LWM2M-OBJ]").
 
 -export([ get_obj_def/2
         , get_object_id/1
@@ -26,10 +29,6 @@
         , get_resource_name/2
         ]).
 
--define(LOG(Level, Format, Args),
-    logger:Level("LWM2M-OBJ: " ++ Format, Args)).
-
-% This module is for future use. Disabled now.
 
 get_obj_def(ObjectIdInt, true) ->
     emqx_lwm2m_xml_object_db:find_objectid(ObjectIdInt);

@@ -16,18 +16,15 @@
 
 -module(emqx_lwm2m_tlv).
 
+-include("emqx_lwm2m.hrl").
+
 -export([ parse/1
         , encode/1
         ]).
 
-
 -ifdef(TEST).
 -export([binary_to_hex_string/1]).
 -endif.
-
--include("emqx_lwm2m.hrl").
-
--define(LOG(Level, Format, Args), logger:Level("LWM2M-TLV: " ++ Format, Args)).
 
 -define(TLV_TYPE_OBJECT_INSTANCE,     0).
 -define(TLV_TYPE_RESOURCE_INSTANCE,   1).
@@ -38,8 +35,6 @@
 -define(TLV_LEGNTH_8_BIT,    1).
 -define(TLV_LEGNTH_16_BIT,   2).
 -define(TLV_LEGNTH_24_BIT,   3).
-
-
 
 %----------------------------------------------------------------------------------------------------------------------------------------
 % [#{tlv_object_instance := Id11, value := Value11}, #{tlv_object_instance := Id12, value := Value12}, ...]
@@ -57,7 +52,6 @@
 %
 % NOTE: TLV does not has object level, only has object instance level. It implies TLV can not represent multiple objects
 %----------------------------------------------------------------------------------------------------------------------------------------
-
 
 parse(Data) ->
     parse_loop(Data, []).

@@ -17,8 +17,10 @@
 -module(emqx_lwm2m_cmd_handler).
 
 -include("emqx_lwm2m.hrl").
-
+-include_lib("emqx/include/logger.hrl").
 -include_lib("lwm2m_coap/include/coap.hrl").
+
+-logger_header("[LWM2M-CMD]").
 
 -export([ mqtt2coap/2
         , coap2mqtt/4
@@ -26,8 +28,6 @@
         ]).
 
 -export([path_list/1]).
-
--define(LOG(Level, Format, Args), logger:Level("LWM2M-CMD: " ++ Format, Args)).
 
 mqtt2coap(AlternatePath, InputCmd = #{<<"msgType">> := <<"create">>, <<"data">> := Data}) ->
     PathList = path_list(maps:get(<<"basePath">>, Data, <<"/">>)),
