@@ -14,7 +14,18 @@
 %% limitations under the License.
 %%--------------------------------------------------------------------
 
+-include_lib("emqx/include/emqx.hrl").
+
 -define(APP, emqx_retainer).
 -define(TAB, ?APP).
--record(retained, {topic, msg, expiry_time}).
 -define(RETAINER_SHARD, emqx_retainer_shard).
+-type topic() :: binary().
+-type payload() :: binary().
+-type message() :: #message{}.
+
+-define(CONTEXT_TAB, emqx_retainer_ctx).
+-record(context, {key :: atom(), value :: term()}).
+
+-type locker() :: context.
+
+-define(DELIVER_SEMAPHORE, deliver_remained_quota).
