@@ -247,12 +247,12 @@ parse_ratelimit_str(S) when is_binary(S) ->
     parse_ratelimit_str(binary_to_list(S));
 parse_ratelimit_str(S) ->
     [L, D] = string:tokens(S, ", "),
-    Limit = case cuttlefish_bytesize:parse(L) of
-                Sz when is_integer(Sz) -> Sz;
+    Limit = case emqx_schema:to_bytesize(L) of
+                {ok, Sz} when is_integer(Sz) -> Sz;
                 {error, Reason1} -> error(Reason1)
             end,
-    Duration = case cuttlefish_duration:parse(D, s) of
-                   Secs when is_integer(Secs) -> Secs;
+    Duration = case emqx_schema:to_duration_s(D) of
+                   {ok, Secs} when is_integer(Secs) -> Secs;
                    {error, Reason} -> error(Reason)
                end,
     {Limit, Duration}.

@@ -22,7 +22,6 @@ rebar3.crashdump
 .DS_Store
 bbmustache/
 etc/gen.emqx.conf
-cuttlefish
 rebar.lock
 xrefr
 intergration_test/emqx-rel/
