@@ -19,7 +19,7 @@
 -compile(export_all).
 -compile(nowarn_export_all).
 
--define(APP, emqx).
+-define(APP, emqx_retainer).
 
 -include_lib("eunit/include/eunit.hrl").
 -include_lib("common_test/include/ct.hrl").
@@ -39,27 +39,34 @@ end_per_suite(_Config) ->
     emqx_ct_helpers:stop_apps([emqx_retainer]).
 
 init_per_testcase(TestCase, Config) ->
-    emqx_retainer:clean(<<"#">>),
+    emqx_retainer:clean(),
     Interval = case TestCase of
                    t_message_expiry_2 -> 2000;
                    _ -> 0
                end,
-    init_emqx_retainer_conf(Interval),
+    OldCfg = emqx_config:get([?APP]),
+    emqx_config:put([?APP], OldCfg#{valid_duration := Interval}),
     application:ensure_all_started(emqx_retainer),
     Config.
 
 set_special_configs(emqx_retainer) ->
-    init_emqx_retainer_conf(0);
+    init_emqx_retainer_conf();
 set_special_configs(_) ->
     ok.
 
-init_emqx_retainer_conf(Expiry) ->
-    emqx_config:put([emqx_retainer],
+init_emqx_retainer_conf() ->
+    emqx_config:put([?APP],
                     #{enable => true,
-                      storage_type => ram,
-                      max_retained_messages => 0,
-                      max_payload_size => 1024 * 1024,
-                      expiry_interval => Expiry}).
+                      storage_type => builtin,
+                      valid_duration => 0,
+                      clear_interval => 0,
+                      connector => [#{storage_type => ram}],
+                      action_failure_strategy => [log_only],
+                      flow_control => #{read_page_size => 0,
+                                        deliver_quota => 0,
+                                        deliver_release_interval => 0},
+                      size_control => #{max_retained_messages => 0,
+                                        max_payload_size => 1024 * 1024}}).
 
 %%--------------------------------------------------------------------
 %% Test Cases
@@ -177,8 +184,13 @@ t_clean(_) ->
     {ok, #{}, [0]} = emqtt:subscribe(C1, <<"retained/#">>, [{qos, 0}, {rh, 0}]),
     ?assertEqual(3, length(receive_messages(3))),
 
-    1 = emqx_retainer:clean(<<"retained/test/0">>),
-    2 = emqx_retainer:clean(<<"retained/+">>),
+    Size1 = emqx_retainer:get_table_size(),
+    ok = emqx_retainer:sync_delete(<<"retained/test/0">>),
+    Size2 = emqx_retainer:get_table_size(),
+    ?assertEqual(1, Size1 - Size2),
+    ok = emqx_retainer:sync_delete(<<"retained/+">>),
+    Size3 = emqx_retainer:get_table_size(),
+    ?assertEqual(2, Size2 - Size3),
     {ok, #{}, [0]} = emqtt:subscribe(C1, <<"retained/#">>, [{qos, 0}, {rh, 0}]),
     ?assertEqual(0, length(receive_messages(3))),
 

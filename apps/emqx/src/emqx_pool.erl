@@ -47,7 +47,10 @@
 
 -define(POOL, ?MODULE).
 
--type(task() :: fun() | mfa() | {fun(), Args :: list(any())}).
+-type(task() :: {module(), atom(), list()}
+              | fun()
+              | mfa()
+              | {fun(), Args :: list(any())}) .
 
 %%--------------------------------------------------------------------
 %% APIs
